@@ -11,11 +11,12 @@ In this repository you find
 ## How it works:
 1. Joins Bedwars lobby
 2. Get online players
-3. Tip 9 random players 
+3. Tip a random player in the 9 available gamemodes
 4. Wait ~1 hour and repeat
 
 ## Features 
 - AntiAFK plugin is used for sending /tipall every x minutes
+- Autotip.cs script tips random players
 - Automatically reconnects when the connection drops
 
 ## Installation:
