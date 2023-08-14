@@ -11,7 +11,7 @@ In this repository you find
 ## How it works:
 1. Joins Bedwars lobby
 2. Get online players
-3. Tip a random player in the 9 available gamemodes
+3. Tip a random player in the 10 available gamemodes
 4. Wait ~1 hour and repeat
 
 ## Features 
@@ -23,6 +23,7 @@ In this repository you find
 1. Download the Minecraft Console Client & the 2 files in this repository
 2. Copy all the files in one folder
 3. Edit the MinecraftClient.ini and add your e-mail as login
-4. Start the Console Client and when logged into Hypixel use the command 
+4. Start the Console Client and login on your browser with the Microsoft login
+5. When logged into Hypixel use the command 
 `/script Autotip.cs`
-5. Now you're all set and it should tip every hour
+6. Now you're all set and it should tip every hour

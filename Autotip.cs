@@ -12,7 +12,7 @@ class Autotip : ChatBot
         private readonly int tipDelay = 10;
         private int tipCount = 0;
         private bool tippingComplete = false;
-        private readonly string[] games = new string[] {"bsg", "mw", "tnt", "cops", "uhc", "war", "sw", "smash" , "classic"};
+        private readonly string[] games = new string[] {"bsg", "mw", "tnt", "cops", "uhc", "war", "sw", "smash" , "classic", "arcade"};
         private string[] onlinePlayers { get; set; }
 
         public override void Update()
@@ -57,8 +57,8 @@ class Autotip : ChatBot
                     }
                     tipCount++;
 
-                    //After 9 tips finish the round
-                    if(tipCount > 8)
+                    //After 10 tips finish the round
+                    if(tipCount > 9)
                     {
                         tipCount = 0;
                         tippingComplete = true;
