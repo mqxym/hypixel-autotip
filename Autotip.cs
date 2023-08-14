@@ -6,7 +6,15 @@
 
 class Autotip : ChatBot
 {
+    	
+        /*
+            IDEAS:
+            - Use another player when accidently tipping yourself (remove your name from onlinePlayers)
+            - Use another player when target player has gone offline
 
+
+
+        */
         private int count = 0;
         private readonly int startrun = 50;
         private readonly int tipDelay = 10;
