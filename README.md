@@ -23,7 +23,8 @@ In this repository you find
 1. Download the Minecraft Console Client & the 2 files in this repository
 2. Copy all the files in one folder
 3. Edit the MinecraftClient.ini and add your e-mail as login
-4. Start the Console Client and login on your browser with the Microsoft login
-5. When logged into Hypixel use the command 
+4. Edit the Autotip.cs and enter your Minecraft username `private readonly string username = "your_name"`
+5. Start the Console Client and login on your browser with the Microsoft login
+6. When logged into Hypixel use the command 
 `/script Autotip.cs`
-6. Now you're all set and it should tip every hour
+7. Now you're all set and it should tip every hour

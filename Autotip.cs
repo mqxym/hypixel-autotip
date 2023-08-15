@@ -9,12 +9,11 @@ class Autotip : ChatBot
     	
         /*
             IDEAS:
-            - Use another player when accidently tipping yourself (remove your name from onlinePlayers)
             - Use another player when target player has gone offline
 
-
-
         */
+
+        private readonly string username = "your_username";
         private int count = 0;
         private readonly int startrun = 50;
         private readonly int tipDelay = 10;
@@ -50,7 +49,9 @@ class Autotip : ChatBot
                 //After 15 seconds tip the first player, wait tipDelay and tip the next player
                 if (count == startrun + tipDelay*10)
                 {
-                    onlinePlayers = GetOnlinePlayers();
+                    //get filtered list of online Players
+                    onlinePlayers = GetOnlinePlayers().Where(item => item != username).ToArray();
+
                     if (tipCount < onlinePlayers.Length)
                     {
                         TipPlayer(onlinePlayers[tipCount], games[tipCount]);
@@ -77,6 +78,7 @@ class Autotip : ChatBot
 
         private void TipPlayer(string playerName, string gameName)
         {
+            //LogToConsole("Tip " + playerName + " " + gameName);
             SendText("/tip " + playerName + " " + gameName);
         }
     }
