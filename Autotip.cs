@@ -31,7 +31,6 @@ class Autotip : ChatBot
             {
                 return;
             }
-            LogToConsole(countCheck);
             //checks which gamemode the player failed to tip
             for (int i = 0; i <= 9 ; i++)
             {
@@ -39,7 +38,6 @@ class Autotip : ChatBot
                     && countCheck <= startrun + tipDelay*10 + i*6*10 + 20) //Count <= e.g. 170 (2 sec for answer)
                 {
                     FailedGamemodes.Add(games[i]);
-                    LogToConsole(games[i]);
                     break;
                 }
             }
@@ -117,7 +115,10 @@ class Autotip : ChatBot
                 else 
                 {
                     LogToConsole("Tipping complete!");
-                    LogToConsole(FailedGamemodes.Count + " failed gamemodes");
+                    if (FailedGamemodes.Count > 0)
+                    {
+                        LogToConsole("Now tipping the " + FailedGamemodes.Count + " failed gamemodes");
+                    }                   
                     tipCount = 0;
                     tippingComplete = true;
                 }
