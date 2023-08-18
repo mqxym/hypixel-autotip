@@ -7,7 +7,7 @@
 class Autotip : ChatBot
 {
 
-    private readonly string username = "wobblterror";
+    private readonly string username = "your_name";
     private int count = 0;
     private readonly int startrun = 50;
     private readonly int endrun = 50;
