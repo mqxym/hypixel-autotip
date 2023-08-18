@@ -1,11 +1,8 @@
 # Hypixel Autotip
 
 Automatically tip random players on the Minecraft Hypixel Network every hour.
-
 In this repository you find 
-
 - A script for the Minecraft Console Client (https://github.com/MCCTeam/Minecraft-Console-Client)
-
 - A configuration file for the Minecraft Console Client
 
 ## How it works:
@@ -17,6 +14,7 @@ In this repository you find
 ## Features 
 - AntiAFK plugin is used for sending /tipall every x minutes
 - Autotip.cs script tips random players
+- The script retries tipping when the target player went offline
 - Automatically reconnects when the connection drops
 
 ## Installation:
