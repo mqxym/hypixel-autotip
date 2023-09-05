@@ -5,6 +5,9 @@ In this repository you find
 - A script for the Minecraft Console Client (https://github.com/MCCTeam/Minecraft-Console-Client)
 - A configuration file for the Minecraft Console Client
 
+This repository is *not* affiliated with Hypixel. 
+Rules should be checked before using this script.
+
 ## How it works:
 1. Joins Bedwars lobby
 2. Get online players
