@@ -24,7 +24,7 @@ Rules should be checked before using this script.
 1. Download the Minecraft Console Client & the 2 files in this repository
 2. Copy all the files in one folder
 3. Edit the MinecraftClient.ini and add your e-mail as login
-4. Edit the Autotip.cs and enter your Minecraft username `private readonly string username = "your_name"`
+4. Edit the Autotip.cs and enter your Minecraft username `private readonly string username = "<your_name>"`
 5. Start the Console Client and login on your browser with the Microsoft login
 6. When logged into Hypixel use the command 
 `/script Autotip.cs`
