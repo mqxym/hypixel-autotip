@@ -1,134 +1,266 @@
 //MCCScript 1.0
 
-﻿MCC.LoadBot(new Autotip());
+MCC.LoadBot(new Autotip());
 
 //MCCScript Extensions
 
-class Autotip : ChatBot
+/// <summary>
+/// Autotip ChatBot plugin for MCCScript.
+/// Automatically tips players in specified game modes after joining the lobby.
+/// </summary>
+public class Autotip : ChatBot
 {
+    #region Constants
 
-    private readonly string username = "your_name";
-    private int count = 0;
-    private readonly int startrun = 50;
-    private readonly int endrun = 50;
-    private readonly int tipDelay = 10;
-    private int tipCount = 0;
-    private int tipCountEnd = 0;
-    private int tipCountTarget = 9;
-    private bool tippingComplete = false;
-    private readonly string[] games = new string[] { "bsg", "mw", "tnt", "cops", "uhc", "war", "sw", "smash", "classic", "arcade" };
-    private string[] OnlinePlayers { get; set; }
-    private List<string> FailedGamemodes { get; set; } = new List<string>();
+    /// <summary>
+    /// The username of the player. Replace "your_name" with your actual username.
+    /// </summary>
+    private const string TipUsername = "your_name";
 
+    /// <summary>
+    /// The initial delay before starting the tipping process (in ticks).
+    /// </summary>
+    private const int StartRunTicks = 50;
+
+    /// <summary>
+    /// The delay after the initial run before resetting (in ticks).
+    /// </summary>
+    private const int EndRunTicks = 50;
+
+    /// <summary>
+    /// The delay between each tip action (in ticks).
+    /// </summary>
+    private const int TipDelayTicks = 10;
+
+    /// <summary>
+    /// The maximum number of game modes available for tipping.
+    /// </summary>
+    private const int MaxGameModes = 10;
+
+    #endregion
+
+    #region Fields
+
+    /// <summary>
+    /// Counter to keep track of ticks since the plugin started.
+    /// </summary>
+    private int _tickCount = 0;
+
+    /// <summary>
+    /// Counter for the number of tips sent in the initial tipping wave.
+    /// </summary>
+    private int _initialTipCount = 0;
+
+    /// <summary>
+    /// Counter for the number of tips sent in the failed tipping wave.
+    /// </summary>
+    private int _failedTipCount = 0;
+
+    /// <summary>
+    /// Target number of tips to send in the initial tipping wave.
+    /// </summary>
+    private int _initialTipTarget = 9;
+
+    /// <summary>
+    /// Flag indicating whether the initial tipping process is complete.
+    /// </summary>
+    private bool _isInitialTippingComplete = false;
+
+    /// <summary>
+    /// List to store game modes where tipping failed.
+    /// </summary>
+    private readonly List<string> _failedGameModes = new List<string>();
+
+    /// <summary>
+    /// Array of online players excluding the autotip player itself.
+    /// </summary>
+    private string[] _onlinePlayers = Array.Empty<string>();
+
+    /// <summary>
+    /// Array of game modes available for tipping.
+    /// </summary>
+    private readonly string[] _gameModes =
+        { "bsg", "mw", "tnt", "cops", "uhc", "war", "sw", "smash", "classic", "arcade" };
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets the list of online players excluding the tipping player.
+    /// </summary>
+    private string[] OnlinePlayers => _onlinePlayers;
+
+    #endregion
+
+    #region Override Methods
+
+    /// <summary>
+    /// Processes incoming text messages to identify failed tipping attempts.
+    /// </summary>
+    /// <param name="text">The text message received.</param>
     public override void GetText(string text)
     {
-        text = GetVerbatim(text);
-        if (text.Contains("That player is not online", StringComparison.OrdinalIgnoreCase))
+        // Extract the verbatim text to ensure accurate processing.
+        string processedText = GetVerbatim(text);
+
+        // Check if the message indicates that a player is not online.
+        if (processedText.Contains("That player is not online", StringComparison.OrdinalIgnoreCase))
         {
-            int countCheck = count;
-            //Ignore it when the fail happens in the end-round
-            if (countCheck > (startrun + tipDelay * 10 + 10 * 6 * 10))
+            // Ignore failures that occur late in the tipping process.
+            if (_tickCount > (StartRunTicks + TipDelayTicks * 10 + 10 * 6 * 10))
             {
                 return;
             }
-            //checks which gamemode the player failed to tip
-            for (int i = 0; i <= 9 ; i++)
+
+            // Determine which game mode failed based on the current tick count.
+            for (int i = 0; i < MaxGameModes; i++)
             {
-                if (countCheck >= startrun + tipDelay*10 + i*6*10 //Count >= e.g. 150
-                    && countCheck <= startrun + tipDelay*10 + i*6*10 + 20) //Count <= e.g. 170 (2 sec for answer)
+                int lowerBound = StartRunTicks + TipDelayTicks * 10 + i * 6 * 10;
+                int upperBound = lowerBound + 20; // 2 seconds window for response
+
+                if (_tickCount >= lowerBound && _tickCount <= upperBound)
                 {
-                    FailedGamemodes.Add(games[i]);
+                    _failedGameModes.Add(_gameModes[i]);
                     break;
                 }
             }
         }
-        //LogToConsole(text);
+
+        // Optional: Log the received text for debugging purposes.
+        // LogToConsole(processedText);
     }
 
+    /// <summary>
+    /// Updates the plugin state on each tick.
+    /// </summary>
     public override void Update()
     {
-        count++;
+        _tickCount++;
 
-        if (count >= startrun)
+        if (_tickCount >= StartRunTicks)
         {
-
-            if (tippingComplete)
+            if (_isInitialTippingComplete)
             {
-                //tip failed gamemodes 
-                if (FailedGamemodes.Count > 0)
+                HandleFailedTipping();
+
+                // Reset the tipping process after approximately 3700 seconds.
+                if (_tickCount >= 3700 * 10)
                 {
-                    //get filtered list of online Players to start the failed tips wave
-                    if (tipCountEnd == 0)
-                    {
-                        OnlinePlayers = GetOnlinePlayers().Where(item => item != username).ToArray();
-                    }
-                    
-                    if (count == (startrun + endrun + tipDelay * 10 + 10 * 6 * 10 + tipCountEnd * 6 * 10))
-                    {
-                        //if enough players are available
-                        if (OnlinePlayers.Length > FailedGamemodes.Count)
-                        {
-                            TipPlayer(OnlinePlayers[tipCountEnd], FailedGamemodes[tipCountEnd]);
-                            tipCountEnd++;
-                            
-                            //reset the list
-                            if (tipCountEnd == FailedGamemodes.Count)
-                            {
-                                tipCountEnd = 0;
-                                FailedGamemodes.Clear();
-                            }
-                        }
-                    }
+                    _isInitialTippingComplete = false;
+                    _tickCount = 0;
                 }
-                //After ~3700 seconds reset the counter and tip again
-                if (count >= 3700 * 10)
-                {
-                    tippingComplete = false;
-                    count = 0;
-                }
-                else
-                {
-                    return;
-                }
+
+                return;
             }
-            //After 5 seconds join bedwars lobby
-            if (count == startrun)
+
+            // Join the Bedwars lobby after the initial delay.
+            if (_tickCount == StartRunTicks)
             {
                 SendText("/lobby bedwars");
             }
-            //After 15 seconds tip the first player, wait tipDelay and tip the next player
-            if (count == (startrun + tipDelay * 10 + tipCount * 6 * 10))
+
+            // Handle the initial tipping wave.
+            HandleInitialTipping();
+        }
+    }
+
+    #endregion
+
+    #region Tipping Methods
+
+    /// <summary>
+    /// Handles the initial wave of tipping players.
+    /// </summary>
+    private void HandleInitialTipping()
+    {
+        int tipTriggerTick = StartRunTicks + TipDelayTicks * 10 + _initialTipCount * 6 * 10;
+
+        if (_tickCount == tipTriggerTick)
+        {
+            // Initialize the list of online players on the first tip.
+            if (_initialTipCount == 0)
             {
-                //get filtered list of online Players at the first tip wave
-                if (tipCount == 0)
+                _onlinePlayers = GetOnlinePlayers()
+                                 .Where(player => !string.Equals(player, TipUsername, StringComparison.OrdinalIgnoreCase))
+                                 .ToArray();
+
+                // Set the target number of tips based on available players.
+                _initialTipTarget = Math.Min(9, _onlinePlayers.Length - 1);
+            }
+
+            if (_initialTipCount <= _initialTipTarget)
+            {
+                TipPlayer(_onlinePlayers[_initialTipCount], _gameModes[_initialTipCount]);
+                _initialTipCount++;
+            }
+            else
+            {
+                LogToConsole("Tipping complete!");
+
+                if (_failedGameModes.Count > 0)
                 {
-                    OnlinePlayers = GetOnlinePlayers().Where(item => item != username).ToArray();
-                    //do 10 tips or the ammount of players in the lobby
-                    tipCountTarget = Math.Min(9, OnlinePlayers.Length - 1);
+                    LogToConsole($"Now tipping the {_failedGameModes.Count} failed gamemodes");
                 }
 
-                if (tipCount <= tipCountTarget)
+                // Reset for the failed tipping wave.
+                _initialTipCount = 0;
+                _isInitialTippingComplete = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles tipping players in failed game modes.
+    /// </summary>
+    private void HandleFailedTipping()
+    {
+        if (_failedGameModes.Count > 0)
+        {
+            // Initialize the list of online players if not already done.
+            if (_failedTipCount == 0)
+            {
+                _onlinePlayers = GetOnlinePlayers()
+                                 .Where(player => !string.Equals(player, TipUsername, StringComparison.OrdinalIgnoreCase))
+                                 .ToArray();
+            }
+
+            int tipTriggerTick = StartRunTicks + EndRunTicks + TipDelayTicks * 10 + 10 * 6 * 10 + _failedTipCount * 6 * 10;
+
+            if (_tickCount == tipTriggerTick)
+            {
+                // Ensure there are enough online players to tip.
+                if (_onlinePlayers.Length > _failedGameModes.Count)
                 {
-                    TipPlayer(OnlinePlayers[tipCount], games[tipCount]);
-                    tipCount++;
-                } 
-                else 
-                {
-                    LogToConsole("Tipping complete!");
-                    if (FailedGamemodes.Count > 0)
+                    TipPlayer(_onlinePlayers[_failedTipCount], _failedGameModes[_failedTipCount]);
+                    _failedTipCount++;
+
+                    // Reset if all failed game modes have been tipped.
+                    if (_failedTipCount == _failedGameModes.Count)
                     {
-                        LogToConsole("Now tipping the " + FailedGamemodes.Count + " failed gamemodes");
-                    }                   
-                    tipCount = 0;
-                    tippingComplete = true;
+                        _failedTipCount = 0;
+                        _failedGameModes.Clear();
+                    }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Sends a tip command to a specified player for a given game mode.
+    /// </summary>
+    /// <param name="playerName">The name of the player to tip.</param>
+    /// <param name="gameName">The name of the game mode to tip for.</param>
     private void TipPlayer(string playerName, string gameName)
     {
-        //LogToConsole("Tip " + playerName + " " + gameName);
-        SendText("/tip " + playerName + " " + gameName);
+        // Construct the tip command.
+        string tipCommand = $"/tip {playerName} {gameName}";
+
+        // Optional: Log the tip action for debugging purposes.
+        // LogToConsole($"Tipping player '{playerName}' for game mode '{gameName}'.");
+
+        SendText(tipCommand);
     }
+
+    #endregion
 }
