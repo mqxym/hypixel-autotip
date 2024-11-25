@@ -138,6 +138,11 @@ public class Autotip : ChatBot
     {
         _tickCount++;
 
+        // Tip all active boosters every 15 and ~45 minutes
+        if ( (_tickCount == 900 * 10) || (_tickCount == 2710 * 10) ) {
+            TipAll();
+        }
+
         if (_tickCount >= StartRunTicks)
         {
             if (_isInitialTippingComplete)
@@ -258,6 +263,18 @@ public class Autotip : ChatBot
 
         // Optional: Log the tip action for debugging purposes.
         // LogToConsole($"Tipping player '{playerName}' for game mode '{gameName}'.");
+
+        SendText(tipCommand);
+    }
+
+    /// <summary>
+    /// Sends a tip all command to the server.
+    /// </summary>
+    private void TipAll()
+    {
+        // Construct the tip command.
+        string tipCommand = "/tipall";
+
 
         SendText(tipCommand);
     }
