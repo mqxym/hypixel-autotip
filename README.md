@@ -29,6 +29,4 @@ Rules should be checked before using this script.
 3. Edit the MinecraftClient.ini and add your e-mail as login
 4. Edit the Autotip.cs and enter your Minecraft username here: `private const string TipUsername = "<your_name>"`
 5. Start the Console Client and login within your browser with your Microsoft login
-6. When logged into Hypixel use the command:
-`/script Autotip.cs`
-7. Now you're all set and it should tip every hour
+6. The autotip script will start and you're all set and it should tip every hour
