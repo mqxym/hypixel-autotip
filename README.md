@@ -14,7 +14,7 @@ Rules should be checked before using this script.
 1. Joins Bedwars lobby
 2. Get online players
 3. Tip a random player in the 10 available gamemodes
-4. Wait ~1 hour and repeat
+4. Wait ~30 minutes and repeat
 
 ## Features
 
